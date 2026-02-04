@@ -3,109 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KBS Sugar - ระบบติดตามข้อมูลโครงการและการตรวจ 69/70</title>
+    <title>KBS Sugar - ระบบติดตาม Dataการตรวจ 69/70</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-green: #2E7D32;
-            --secondary-green: #4CAF50;
-            --kbs-orange: #FF9800;
-            --bg-light: #F4F7F6;
+        :root { --kbs-green: #2E7D32; --kbs-orange: #FF9800; --bg-light: #F4F7F6; }
+        body { font-family: 'Sarabun', sans-serif; background-color: var(--bg-light); }
+        .kbs-header { 
+            background: linear-gradient(135deg, var(--kbs-green) 0%, #1565C0 100%); 
+            color: white; padding: 2rem 0; border-bottom: 5px solid var(--kbs-orange); 
         }
-        body { font-family: 'Sarabun', sans-serif; background-color: var(--bg-light); color: #333; }
-        
-        /* Header Style */
-        .kbs-header {
-            background: linear-gradient(135deg, var(--primary-green) 0%, #1565C0 100%);
-            color: white; padding: 25px 0; border-bottom: 5px solid var(--kbs-orange);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .nav-tabs-kbs { border: none; gap: 10px; margin-bottom: 20px; }
+        .nav-tabs-kbs .nav-link { 
+            border: none; background: #e9ecef; color: #666; border-radius: 10px; 
+            padding: 12px 25px; font-weight: 600; transition: 0.3s;
         }
-
-        /* Tabs Style */
-        .nav-tabs-kbs { border: none; gap: 8px; margin-bottom: 20px; }
-        .nav-tabs-kbs .nav-link {
-            border: none; background: #e9ecef; color: #666; border-radius: 12px;
-            padding: 12px 24px; font-weight: 600; transition: all 0.3s ease;
+        .nav-tabs-kbs .nav-link.active { 
+            background: var(--kbs-green); color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
         }
-        .nav-tabs-kbs .nav-link.active {
-            background: var(--primary-green); color: white;
-            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+        .table-container { 
+            background: white; border-radius: 15px; padding: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
         }
-
-        /* Card & Table Style */
-        .content-card {
-            background: white; border-radius: 18px; padding: 25px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03);
-        }
-        .table thead { background-color: #f8f9fa; color: var(--primary-green); }
-        .status-badge {
-            padding: 6px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: bold;
-        }
-        
-        .loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999;
+        .status-badge { padding: 6px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: bold; }
+        .loading-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.9); z-index: 9999; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
         }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loading-screen">
-    <div class="spinner-border text-success mb-3" role="status"></div>
-    <div class="fw-bold text-success">กำลังโหลดข้อมูลจากชีท Dataโครงการ และ Dataการตรวจ...</div>
+<div id="loader" class="loading-overlay">
+    <div class="spinner-border text-success mb-3"></div>
+    <div class="fw-bold text-success">กำลังโหลดข้อมูลจากชีท Dataการตรวจ...</div>
 </div>
 
 <div class="kbs-header">
     <div class="container d-md-flex align-items-center">
-        <img src="https://i.postimg.cc/wMdZPmTL/skr-nch-xt-2026-01-12-092906.png" alt="KBS Logo" style="height: 55px; background: white; padding: 6px; border-radius: 10px;" class="me-3 mb-3 mb-md-0">
+        <img src="https://i.postimg.cc/wMdZPmTL/skr-nch-xt-2026-01-12-092906.png" alt="KBS Logo" style="height: 50px; background: white; padding: 5px; border-radius: 5px;" class="me-3 mb-3 mb-md-0">
         <div>
-            <h1 class="h4 fw-bold mb-0">ระบบติดตามโครงการปลูกอ้อย ปี 69/70</h1>
-            <p class="mb-0 opacity-75 small">ข้อมูลเฉพาะจากชีท: Dataโครงการ และ Dataการตรวจ</p>
+            <h1 class="h4 fw-bold mb-0">ระบบติดตามการตรวจแปลง ปี 69/70</h1>
+            <p class="mb-0 opacity-75 small">ข้อมูลเฉพาะชีท: Dataการตรวจ</p>
         </div>
     </div>
 </div>
 
 <div class="container mt-4">
-    <ul class="nav nav-tabs nav-tabs-kbs" id="tabMenu">
+    <ul class="nav nav-tabs nav-tabs-kbs">
         <li class="nav-item">
             <button class="nav-link active" onclick="switchProject('ปลูกอ้อยในนา ปี 69/70', this)">
-                <i class="fas fa-tractor me-2"></i>ปลูกอ้อยในนา 69/70
+                🌾 ปลูกอ้อยในนา 69/70
             </button>
         </li>
         <li class="nav-item">
             <button class="nav-link" onclick="switchProject('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)">
-                <i class="fas fa-exchange-alt me-2"></i>เปลี่ยนพืชอื่น 69/70
+                🔄 เปลี่ยนพืชอื่น 69/70
             </button>
         </li>
     </ul>
 
-    <div class="content-card">
-        <div class="row mb-4 align-items-center">
+    <div class="table-container">
+        <div class="row mb-3 align-items-center">
             <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" id="txtSearch" onkeyup="doSearch()" class="form-control border-start-0" placeholder="ค้นหา ชื่อ/โควต้า/เลขแปลง...">
+                    <input type="text" id="searchInput" onkeyup="doSearch()" class="form-control border-start-0" placeholder="ค้นหา ชื่อชาวไร่/เลขแปลง/โควต้า...">
                 </div>
             </div>
-            <div class="col-md-7 text-md-end mt-3 mt-md-0">
-                <span id="dataInfo" class="text-muted small">อัปเดตล่าสุด: กำลังโหลด...</span>
+            <div class="col-md-7 text-md-end text-muted small">
+                <span id="dataCount">กำลังเตรียมข้อมูล...</span>
             </div>
         </div>
 
         <div class="table-responsive">
             <table class="table table-hover align-middle">
-                <thead>
+                <thead class="table-light">
                     <tr>
-                        <th>เลขแปลง</th>
-                        <th>โควต้า / ชื่อชาวไร่</th>
+                        <th>เลขแปลงintech</th>
+                        <th>เลขโควต้า / ชื่อชาวไร่</th>
                         <th>เขต</th>
-                        <th>นักเกษตร</th>
+                        <th>รหัสนักเกษตร / ชื่อ</th>
                         <th class="text-end">พื้นที่ (ไร่)</th>
                         <th>วันที่ปลูก</th>
-                        <th class="text-center">ผลการตรวจ</th>
+                        <th class="text-center">สถานะโครงการ</th>
+                        <th class="text-center">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -116,51 +100,45 @@
 </div>
 
 <script>
-    // ⚠️ ระบุ Sheet ID และ GID ของแต่ละชีทให้ถูกต้อง
+    // ⚠️ ระบุ Sheet ID และตรวจสอบการ Publish to Web เฉพาะชีท "Dataการตรวจ" เป็น CSV
     const SHEET_ID = '2PACX-1vRY22UkMfLhAswqWJLCMvhCMeZxVsFQy1gLBLnrwB6VggruF4son8LZxN-EqtFxsUOdv1xs-Yf2cKnn';
     
-    // สำคัญ: คุณต้องกด Publish ชีททีละหน้า เพื่อหาค่า gid
-    // gid=0 คือชีทแรก ปกติจะเป็น Dataโครงการ
-    // ตัวอย่าง gid=123456789 คือ Dataการตรวจ
-    const URL_PROJECT = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=0&output=csv`;
-    const URL_AUDIT = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=ใส่_GID_Dataการตรวจ_ตรงนี้&output=csv`;
+    // สำคัญ: ต้องระบุ gid ของชีท "Dataการตรวจ" (ดูเลข gid จาก URL ใน Google Sheet ของคุณ)
+    const gid = 'ใส่_GID_ของ_Dataการตรวจ_ที่นี่'; 
+    const csvUrl = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${gid}&output=csv`;
 
     let auditData = [];
-    let activeProject = 'ปลูกอ้อยในนา ปี 69/70';
+    let currentFilter = 'ปลูกอ้อยในนา ปี 69/70';
 
-    async function init() {
+    async function loadData() {
         try {
-            // ดึงข้อมูลจากชีท Dataการตรวจ เป็นหลักเพื่อแสดงสถานะ
-            const response = await fetch(URL_AUDIT);
-            const csvText = await response.text();
+            const response = await fetch(csvUrl);
+            const text = await response.text();
+            auditData = parseCSV(text);
             
-            // แปลง CSV เป็น Object Array
-            auditData = parseCSV(csvText);
-            
-            document.getElementById('dataInfo').innerText = `✅ เชื่อมต่อชีท Dataการตรวจ สำเร็จ (${auditData.length} รายการ)`;
             document.getElementById('loader').style.display = 'none';
-            
             renderTable();
-        } catch (err) {
-            console.error(err);
-            document.getElementById('tableBody').innerHTML = `<tr><td colspan="7" class="text-center p-5 text-danger">⚠️ ไม่สามารถโหลดข้อมูลได้ โปรดตรวจสอบการ Publish ชีท "Dataการตรวจ" เป็น CSV</td></tr>`;
+        } catch (error) {
+            console.error(error);
+            document.getElementById('tableBody').innerHTML = `<tr><td colspan="8" class="text-center p-5 text-danger">❌ ไม่สามารถโหลดข้อมูลได้ โปรดตรวจสอบการ Publish CSV และเลข GID</td></tr>`;
         }
     }
 
-    function parseCSV(csv) {
-        const lines = csv.split('\n');
-        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    function parseCSV(text) {
+        const rows = text.split('\n');
+        // ดึงหัวตารางและล้างค่าว่าง/เครื่องหมายคำพูด
+        const headers = rows[0].split(',').map(h => h.trim().replace(/"/g, ''));
         
-        return lines.slice(1).map(line => {
-            const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        return rows.slice(1).map(row => {
+            const values = row.split(',').map(v => v.trim().replace(/"/g, ''));
             const obj = {};
-            headers.forEach((h, i) => obj[h] = values[i]);
+            headers.forEach((header, i) => obj[header] = values[i]);
             return obj;
         });
     }
 
-    function switchProject(name, btn) {
-        activeProject = name;
+    function switchProject(projectName, btn) {
+        currentFilter = projectName;
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         btn.classList.add('active');
         renderTable();
@@ -170,11 +148,13 @@
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
-        // กรองตามชื่อโครงการในคอลัมน์ "สถานะโครงการ"
-        const filtered = auditData.filter(row => row['สถานะโครงการ'] === activeProject);
+        // กรองข้อมูลจากคอลัมน์ "สถานะโครงการ"
+        const filtered = auditData.filter(row => row['สถานะโครงการ'] === currentFilter);
+
+        document.getElementById('dataCount').innerText = `✅ พบข้อมูล ${filtered.length} รายการ`;
 
         if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center p-5 text-muted">ไม่พบข้อมูลโครงการ "${activeProject}" ในชีท Dataการตรวจ</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center p-5 text-muted">ไม่พบข้อมูล "${currentFilter}" ในชีท Dataการตรวจ</td></tr>`;
             return;
         }
 
@@ -186,7 +166,7 @@
                     <div class="fw-bold">${row['ชื่อชาวไร่'] || '-'}</div>
                     <div class="small text-muted">โควต้า: ${row['เลขโควต้า'] || '-'}</div>
                 </td>
-                <td><span class="badge bg-light text-dark border">เขต ${row['เขต'] || '-'}</span></td>
+                <td class="text-center"><span class="badge bg-secondary">เขต ${row['เขต'] || '-'}</span></td>
                 <td>
                     <div class="small fw-bold">${row['ชื่อนักเกษตร'] || '-'}</div>
                     <div class="text-muted" style="font-size: 0.7rem;">รหัส: ${row['รหัสนักเกษตร'] || '-'}</div>
@@ -194,9 +174,12 @@
                 <td class="text-end fw-bold">${parseFloat(row['พื้นที่'] || 0).toFixed(2)}</td>
                 <td class="small">${row['วันที่ปลูก'] || '-'}</td>
                 <td class="text-center">
-                    <span class="status-badge ${row['เงื่อนไขโครงการ'] === 'ผ่าน' ? 'bg-success text-white' : 'bg-warning text-dark'}">
-                        ${row['เงื่อนไขโครงการ'] || 'รอการตรวจ'}
+                    <span class="status-badge bg-light text-dark border">
+                        ${row['สถานะโครงการ'] || '-'}
                     </span>
+                </td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-success"><i class="fas fa-search"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -204,13 +187,12 @@
     }
 
     function doSearch() {
-        const q = document.getElementById('txtSearch').value.toLowerCase();
+        const q = document.getElementById('searchInput').value.toLowerCase();
         const rows = document.querySelectorAll('#tableBody tr');
         rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none');
     }
 
-    // Start
-    init();
+    loadData();
 </script>
 
 </body>
