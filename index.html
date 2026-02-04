@@ -3,67 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบติดตาม Data การตรวจ 69/70</title>
+    <title>ระบบตรวจสอบข้อมูล - Dataการตรวจ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; }
-        .tab-active { background-color: #ffffff; border-bottom: 4px solid #10b981; color: #065f46; font-weight: 600; }
-        .table-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-        .status-pill { padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: bold; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0fdf4; }
+        .tab-btn { transition: all 0.3s ease; border-bottom: 4px solid transparent; }
+        .tab-active { background-color: white; border-bottom-color: #10b981; color: #065f46; font-weight: bold; }
+        .table-wrapper { background: white; border-radius: 0 1rem 1rem 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        th { white-space: nowrap; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-10">
 
     <div class="max-w-7xl mx-auto">
-        <header class="mb-8 flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-emerald-50">
-            <div>
-                <h1 class="text-2xl font-bold text-emerald-900">📑 ระบบจัดการข้อมูล: Dataการตรวจ</h1>
-                <p class="text-slate-500">ตรวจสอบข้อมูลการปลูกอ้อย ปี 69/70 รายแปลง</p>
-            </div>
-            <div id="dataCount" class="mt-4 md:mt-0 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl font-bold">
-                กำลังโหลด...
-            </div>
+        <header class="mb-8 bg-emerald-800 p-8 rounded-3xl text-white shadow-lg">
+            <h1 class="text-3xl font-bold">📑 ระบบรายงานผล: ชีท Dataการตรวจ</h1>
+            <p class="opacity-80 mt-1">แสดงข้อมูลรายแปลง ตามสถานะโครงการ (ปี 69/70)</p>
         </header>
 
-        <div class="flex flex-wrap gap-2 border-b border-slate-200 mb-0">
-            <button onclick="switchProject('ปลูกอ้อยในนา ปี 69/70', this)" id="defaultTab" 
-                class="px-6 py-4 rounded-t-xl text-slate-500 hover:bg-white transition-all">
+        <div class="flex flex-wrap gap-1">
+            <button onclick="switchProject('ปลูกอ้อยในนา ปี 69/70', this)" id="btn-1" 
+                class="tab-btn px-6 py-4 rounded-t-xl bg-emerald-100 text-emerald-800 hover:bg-white">
                 🌾 ปลูกอ้อยในนา 69/70
             </button>
-            <button onclick="switchProject('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)" 
-                class="px-6 py-4 rounded-t-xl text-slate-500 hover:bg-white transition-all">
+            <button onclick="switchProject('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)" id="btn-2"
+                class="tab-btn px-6 py-4 rounded-t-xl bg-emerald-100 text-emerald-800 hover:bg-white">
                 🔄 เปลี่ยนพืชอื่น 69/70
             </button>
         </div>
 
-        <div class="bg-white p-6 rounded-b-2xl shadow-sm border border-t-0 border-slate-100">
+        <div class="table-wrapper p-6 border border-emerald-50">
             
-            <div class="mb-6">
-                <div class="relative max-w-md">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div class="relative w-full md:w-96">
                     <input type="text" id="searchInput" onkeyup="searchTable()" 
-                        placeholder="ค้นหา ชื่อชาวไร่ / เลขโควต้า / เลขแปลง..." 
-                        class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
-                    <span class="absolute left-4 top-3.5 text-slate-400">🔍</span>
+                        placeholder="🔍 ค้นหาชื่อ/โควต้า/แปลง..." 
+                        class="w-full p-3 pl-10 rounded-xl border border-emerald-100 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
+                </div>
+                <div id="summaryInfo" class="text-emerald-700 bg-emerald-50 px-6 py-2 rounded-full font-bold border border-emerald-100">
+                    กำลังดึงข้อมูล...
                 </div>
             </div>
 
-            <div class="overflow-x-auto rounded-xl border border-slate-50">
-                <table class="w-full text-left border-collapse" id="dataTable">
-                    <thead class="bg-slate-50 text-slate-600 text-sm font-semibold">
+            <div class="overflow-x-auto rounded-xl">
+                <table class="w-full text-left border-collapse" id="mainTable">
+                    <thead class="bg-emerald-50 text-emerald-900 text-sm">
                         <tr>
                             <th class="p-4 border-b">เลขแปลง Intech</th>
                             <th class="p-4 border-b">เลขโควต้า</th>
                             <th class="p-4 border-b">ชื่อชาวไร่</th>
                             <th class="p-4 border-b">เขต</th>
-                            <th class="p-4 border-b">นักเกษตร (รหัส/ชื่อ)</th>
+                            <th class="p-4 border-b">รหัสนักเกษตร</th>
+                            <th class="p-4 border-b">ชื่อนักเกษตร</th>
                             <th class="p-4 border-b text-center">พื้นที่ (ไร่)</th>
                             <th class="p-4 border-b">วันที่ปลูก</th>
                             <th class="p-4 border-b">สถานะโครงการ</th>
                             <th class="p-4 border-b text-center">จัดการ</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="text-slate-700 divide-y divide-slate-100 text-sm">
+                    <tbody id="tableBody" class="divide-y divide-emerald-50 text-slate-700 text-sm">
                         </tbody>
                 </table>
             </div>
@@ -71,81 +70,80 @@
     </div>
 
     <script>
-        // ใช้ ID จาก "Dataการตรวจ" ที่คุณส่งมา
         const sheetId = '2PACX-1vRY22UkMfLhAswqWJLCMvhCMeZxVsFQy1gLBLnrwB6VggruF4son8LZxN-EqtFxsUOdv1xs-Yf2cKnn';
-        // เคล็ดลับ: ต้อง Publish ชีท "Dataการตรวจ" เป็น CSV เท่านั้น
+        // ลิงก์สำหรับการดึงข้อมูล (ตรวจสอบว่า Publish ชีท Dataการตรวจ แล้ว)
         const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?output=csv`;
 
-        let masterData = [];
-        let currentProjectName = '';
+        let rawData = [];
+        let currentProject = 'ปลูกอ้อยในนา ปี 69/70';
 
-        async function loadSheetData() {
+        async function init() {
             try {
                 const response = await fetch(url);
-                const csvText = await response.text();
-                // แปลง CSV เป็น Array
-                masterData = csvText.split('\n').map(row => row.split(',').map(cell => cell.trim()));
+                const text = await response.text();
+                // แปลง CSV เป็น Array และล้างค่าว่าง
+                rawData = text.split('\n').map(row => 
+                    row.split(',').map(cell => cell.replace(/"/g, '').trim())
+                );
                 
-                // เริ่มต้นด้วยแท็บแรก
-                document.getElementById('defaultTab').click();
+                // คลิกแท็บแรกให้ทำงาน
+                switchProject('ปลูกอ้อยในนา ปี 69/70', document.getElementById('btn-1'));
             } catch (err) {
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" class="p-10 text-center text-red-500 italic">❌ ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการ Publish ชีท "Dataการตรวจ" เป็น CSV</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="10" class="p-10 text-center text-red-500">❌ ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการ Publish เป็น CSV</td></tr>';
             }
         }
 
         function switchProject(projectName, btn) {
-            currentProjectName = projectName;
+            currentProject = projectName;
             
-            // สลับสถานะปุ่มเมนู
-            document.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
+            // เปลี่ยน Style ปุ่ม
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
             btn.classList.add('tab-active');
 
-            renderTable();
+            renderData();
         }
 
-        function renderTable() {
+        function renderData() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            // กรองข้อมูลจาก คอลัมน์ที่ 9 (Index 8) "สถานะโครงการ"
-            const filtered = masterData.slice(1).filter(row => {
-                const statusValue = row[8] || ''; 
-                return statusValue === currentProjectName;
+            // กรองข้อมูล: คอลัมน์ที่ 9 (Index 8) คือสถานะโครงการ
+            const filtered = rawData.slice(1).filter(row => {
+                const projectStatus = row[8] || ''; 
+                return projectStatus === currentProject;
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-20 text-center text-slate-300 italic">ไม่พบข้อมูลในโครงการ: ${currentProjectName}</td></tr>`;
-                document.getElementById('dataCount').innerText = `พบ 0 รายการ`;
+                tbody.innerHTML = `<tr><td colspan="10" class="p-20 text-center text-slate-400 italic">ไม่พบข้อมูลในโครงการ "${currentProject}" <br>โปรดเช็คชื่อในคอลัมน์ "สถานะโครงการ" ว่าสะกดถูกต้องหรือไม่</td></tr>`;
+                document.getElementById('summaryInfo').innerText = `พบ 0 รายการ`;
                 return;
             }
 
             filtered.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-emerald-50/30 transition-colors";
+                tr.className = 'hover:bg-emerald-50/50 transition-all';
                 tr.innerHTML = `
-                    <td class="p-4 font-medium text-slate-900">${row[0] || '-'}</td>
+                    <td class="p-4 font-medium text-emerald-900">${row[0] || '-'}</td>
                     <td class="p-4">${row[1] || '-'}</td>
-                    <td class="p-4 font-bold text-emerald-800">${row[2] || '-'}</td>
+                    <td class="p-4 font-bold text-slate-800">${row[2] || '-'}</td>
                     <td class="p-4 text-center">${row[3] || '-'}</td>
-                    <td class="p-4">
-                        <div class="text-[10px] text-slate-400 font-bold">${row[4] || '-'}</div>
-                        <div class="font-medium">${row[5] || '-'}</div>
-                    </td>
-                    <td class="p-4 text-center font-bold text-slate-700">${row[6] || '0'}</td>
+                    <td class="p-4 text-slate-500">${row[4] || '-'}</td>
+                    <td class="p-4 font-medium">${row[5] || '-'}</td>
+                    <td class="p-4 text-center font-bold text-emerald-600">${row[6] || '0'}</td>
                     <td class="p-4 text-slate-500">${row[7] || '-'}</td>
                     <td class="p-4">
-                        <span class="status-pill ${currentProjectName.includes('ปลูกอ้อยในนา') ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}">
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold">
                             ${row[8] || '-'}
                         </span>
                     </td>
                     <td class="p-4 text-center">
-                        <button class="bg-white border border-emerald-500 text-emerald-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-emerald-500 hover:text-white transition">🔍 ตรวจสอบ</button>
+                        <button class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-emerald-700 transition shadow-sm">ตรวจงาน</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('dataCount').innerText = `✅ พบทั้งหมด ${filtered.length} รายการ`;
+            document.getElementById('summaryInfo').innerText = `📊 รวมทั้งหมด ${filtered.length} รายการ`;
         }
 
         function searchTable() {
@@ -156,7 +154,7 @@
             });
         }
 
-        loadSheetData();
+        init();
     </script>
 </body>
 </html>
