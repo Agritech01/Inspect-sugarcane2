@@ -3,260 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KBS Sugar - ระบบจัดการโครงการปลูกอ้อย 69/70</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>ระบบจัดการข้อมูลชาวไร่</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
-        :root {
-            --kbs-green: #28a745;
-            --kbs-dark: #1e3d2b;
-            --kbs-accent: #f8f9fa;
-        }
-
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-        }
-
-        .navbar-kbs {
-            background-color: var(--kbs-dark);
-            color: white;
-            padding: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .status-pass { background-color: #d4edda; color: #155724; }
-        .status-wait { background-color: #fff3cd; color: #856404; }
-        .status-fail { background-color: #f8d7da; color: #721c24; }
-
-        .nav-tabs .nav-link {
-            color: #666;
-            border: none;
-            padding: 12px 25px;
-        }
-
-        .nav-tabs .nav-link.active {
-            color: var(--kbs-green);
-            border-bottom: 3px solid var(--kbs-green);
-            background: none;
-            font-weight: 600;
-        }
-
-        .summary-card-icon {
-            font-size: 2.5rem;
-            opacity: 0.2;
-            position: absolute;
-            right: 15px;
-            bottom: 10px;
-        }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f7fafc; }
+        .table-container { background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; }
+        .header-gradient { background: linear-gradient(135deg, #0d9488 0%, #2dd4bf 100%); }
+        tr:nth-child(even) { background-color: #f9fafb; }
+        tr:hover { background-color: #f0fdfa; transition: 0.2s; }
+        .btn-manage { background-color: #0f766e; color: white; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-<nav class="navbar navbar-kbs">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-        <div>
-            <i class="fas fa-seedling me-2"></i>
-            <strong>KBS Sugar Group</strong> | ระบบติดตามโครงการ 69/70
-        </div>
-        <div id="lastUpdated" class="small opacity-75">กำลังโหลดข้อมูล...</div>
-    </div>
-</nav>
-
-<div class="container-fluid mt-4">
-    
-    <ul class="nav nav-tabs mb-4" id="projectTabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="summary-tab" data-bs-toggle="tab" href="#summary" role="tab"><i class="fas fa-chart-pie me-2"></i>สรุปรายงาน</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="paddy-tab" data-bs-toggle="tab" href="#paddy" role="tab"><i class="fas fa-water me-2"></i>ปลูกอ้อยในนา</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="switch-tab" data-bs-toggle="tab" href="#switch" role="tab"><i class="fas fa-exchange-alt me-2"></i>เปลี่ยนพืชอื่น</a>
-        </li>
-    </ul>
-
-    <div class="tab-content" id="myTabContent">
-        
-        <div class="tab-pane fade show active" id="summary" role="tabpanel">
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="card p-3 bg-white">
-                        <div class="text-muted small">พื้นที่เป้าหมายรวม (ไร่)</div>
-                        <h2 class="fw-bold" id="totalGoal">0</h2>
-                        <i class="fas fa-bullseye summary-card-icon"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card p-3 bg-white border-start border-success border-4">
-                        <div class="text-muted small">ดำเนินการจริง (ไร่)</div>
-                        <h2 class="fw-bold text-success" id="actualArea">0</h2>
-                        <i class="fas fa-check-circle summary-card-icon"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card p-3 bg-white">
-                        <div class="text-muted small">ความคืบหน้าภาพรวม</div>
-                        <h2 class="fw-bold text-primary" id="progressPct">0%</h2>
-                        <i class="fas fa-tasks summary-card-icon"></i>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card p-3 bg-white">
-                        <div class="text-muted small">จำนวนชาวไร่ในโครงการ</div>
-                        <h2 class="fw-bold" id="farmerCount">0</h2>
-                        <i class="fas fa-users summary-card-icon"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-md-7">
-                    <div class="card p-4">
-                        <h6>ความคืบหน้าตามเขตส่งเสริม (Zone Progress)</h6>
-                        <canvas id="zoneChart" height="150"></canvas>
-                    </div>
-                </div>
-                <div class="col-md-5">
-                    <div class="card p-4">
-                        <h6>สัดส่วนสถานะการตรวจแปลง</h6>
-                        <canvas id="statusChart"></canvas>
-                    </div>
-                </div>
-            </div>
+    <div class="max-w-7xl mx-auto">
+        <div class="header-gradient p-8 rounded-3xl mb-8 text-white shadow-lg">
+            <h1 class="text-3xl font-bold mb-2">ระบบฐานข้อมูลการปลูก</h1>
+            <p class="opacity-90">จัดการข้อมูลเลขแปลงและนักเกษตรแบบเรียลไทม์</p>
         </div>
 
-        <div class="tab-pane fade" id="paddy" role="tabpanel">
-            <div class="card p-3">
-                <div class="d-flex justify-content-between mb-3">
-                    <input type="text" class="form-control w-25" id="searchPaddy" placeholder="ค้นหาชื่อ/เลขโควตา...">
-                    <button class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i> Export</button>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle" id="tablePaddy">
-                        <thead class="table-light">
-                            <tr>
-                                <th>โควตา</th>
-                                <th>ชื่อชาวไร่</th>
-                                <th>เขต</th>
-                                <th>พื้นที่ (ไร่)</th>
-                                <th>สถานะ</th>
-                                <th>จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="mb-6 flex flex-wrap gap-4 items-center justify-between">
+            <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="🔍 ค้นหาชื่อชาวไร่ หรือเลขโควต้า..." 
+                class="p-3 px-5 rounded-xl border border-gray-200 w-full md:w-96 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <div class="text-gray-500 text-sm">อัปเดตล่าสุดจาก Google Sheets</div>
         </div>
 
-        <div class="tab-pane fade" id="switch" role="tabpanel">
-            <div class="card p-3">
-                <p class="text-muted text-center py-5">ดึงข้อมูลจากระบบเปลี่ยนพืชอื่น...</p>
-            </div>
+        <div class="table-container overflow-x-auto">
+            <table class="w-full text-left border-collapse" id="dataTable">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr class="text-gray-700 font-semibold text-sm">
+                        <th class="p-4 whitespace-nowrap">เลขแปลง Intech</th>
+                        <th class="p-4 whitespace-nowrap">เลขโควต้า</th>
+                        <th class="p-4 whitespace-nowrap">ชื่อชาวไร่</th>
+                        <th class="p-4 whitespace-nowrap">เขต</th>
+                        <th class="p-4 whitespace-nowrap">รหัสนักเกษตร</th>
+                        <th class="p-4 whitespace-nowrap">ชื่อนักเกษตร</th>
+                        <th class="p-4 whitespace-nowrap text-center">พื้นที่ (ไร่)</th>
+                        <th class="p-4 whitespace-nowrap">วันที่ปลูก</th>
+                        <th class="p-4 whitespace-nowrap">เงื่อนไขโครงการ</th>
+                        <th class="p-4 whitespace-nowrap">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="text-gray-600 text-sm">
+                    <tr>
+                        <td colspan="10" class="text-center py-10">กำลังโหลดข้อมูล...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Configuration
-    const CSV_URL = 'YOUR_GOOGLE_SHEET_CSV_URL_HERE'; // เปลี่ยนเป็น URL ของคุณ
+    <script>
+        const sheetId = '2PACX-1vRY22UkMfLhAswqWJLCMvhCMeZxVsFQy1gLBLnrwB6VggruF4son8LZxN-EqtFxsUOdv1xs-Yf2cKnn';
+        const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?output=csv`;
 
-    // Mock Data สำหรับทดสอบ UI
-    const mockData = [
-        { quota: '10001', name: 'นายเกษตร มุ่งมั่น', zone: '10', area: 15.5, status: 'ผ่าน' },
-        { quota: '10002', name: 'นางสาวไร่สวย งามตา', zone: '12', area: 22.0, status: 'รอตรวจ' },
-        { quota: '10003', name: 'นายประหยัด ปุ๋ยดี', zone: '05', area: 8.75, status: 'ไม่ผ่าน' },
-    ];
+        async function fetchData() {
+            try {
+                const response = await fetch(url);
+                const csvText = await response.text();
+                const rows = csvText.split('\n').map(row => row.split(','));
+                renderTable(rows);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="10" class="text-center py-10 text-red-500">ไม่สามารถเชื่อมต่อข้อมูลได้</td></tr>';
+            }
+        }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initCharts();
-        renderTable('tablePaddy', mockData);
-        updateSummary(mockData);
-        document.getElementById('lastUpdated').innerText = 'อัปเดตล่าสุด: ' + new Date().toLocaleString('th-TH');
-    });
+        function renderTable(rows) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
 
-    function initCharts() {
-        // กราฟแท่งรายเขต
-        const ctxZone = document.getElementById('zoneChart').getContext('2d');
-        new Chart(ctxZone, {
-            type: 'bar',
-            data: {
-                labels: ['เขต 05', 'เขต 08', 'เขต 10', 'เขต 12', 'เขต 15'],
-                datasets: [{
-                    label: '% ความคืบหน้า',
-                    data: [85, 42, 63, 91, 55],
-                    backgroundColor: '#28a745'
-                }]
-            },
-            options: { responsive: true, plugins: { legend: { display: false } } }
-        });
+            // เริ่มที่ i = 1 เพื่อข้ามหัวตารางใน Sheet
+            for (let i = 1; i < rows.length; i++) {
+                const col = rows[i];
+                if (col.length < 5) continue; // ข้ามแถวว่าง
 
-        // กราฟวงกลมสถานะ
-        const ctxStatus = document.getElementById('statusChart').getContext('2d');
-        new Chart(ctxStatus, {
-            type: 'doughnut',
-            data: {
-                labels: ['ผ่าน', 'รอตรวจ', 'ไม่ผ่าน'],
-                datasets: [{
-                    data: [65, 25, 10],
-                    backgroundColor: ['#28a745', '#ffc107', '#dc3545']
-                }]
-            },
-            options: { cutout: '70%' }
-        });
-    }
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-50';
+                tr.innerHTML = `
+                    <td class="p-4 font-medium text-gray-800">${col[0] || '-'}</td>
+                    <td class="p-4">${col[1] || '-'}</td>
+                    <td class="p-4 font-semibold text-teal-700">${col[2] || '-'}</td>
+                    <td class="p-4">${col[3] || '-'}</td>
+                    <td class="p-4 text-xs bg-gray-100 rounded text-center m-2 inline-block">${col[4] || '-'}</td>
+                    <td class="p-4">${col[5] || '-'}</td>
+                    <td class="p-4 text-center">${col[6] || '0'}</td>
+                    <td class="p-4 text-gray-500">${col[7] || '-'}</td>
+                    <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-xs font-medium">${col[8] || '-'}</span></td>
+                    <td class="p-4"><button class="btn-manage hover:bg-teal-800 transition shadow-sm">ดูรายละเอียด</button></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
 
-    function renderTable(tableId, data) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = data.map(item => `
-            <tr>
-                <td><strong>${item.quota}</strong></td>
-                <td>${item.name}</td>
-                <td><span class="badge bg-secondary">${item.zone}</span></td>
-                <td>${item.area.toLocaleString()}</td>
-                <td>${getStatusBadge(item.status)}</td>
-                <td><button class="btn btn-sm btn-light border"><i class="fas fa-search"></i></button></td>
-            </tr>
-        `).join('');
-    }
+        function searchTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById("dataTable");
+            const tr = table.getElementsByTagName("tr");
 
-    function getStatusBadge(status) {
-        if(status === 'ผ่าน') return '<span class="status-badge status-pass">ผ่าน</span>';
-        if(status === 'รอตรวจ') return '<span class="status-badge status-wait">รอตรวจ</span>';
-        return '<span class="status-badge status-fail">ไม่ผ่าน</span>';
-    }
+            for (let i = 1; i < tr.length; i++) {
+                const tdName = tr[i].getElementsByTagName("td")[2]; // คอลัมน์ชื่อชาวไร่
+                const tdQuota = tr[i].getElementsByTagName("td")[1]; // คอลัมน์เลขโควต้า
+                if (tdName || tdQuota) {
+                    const txtValue = (tdName.textContent || tdName.innerText) + (tdQuota.textContent || tdQuota.innerText);
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
 
-    function updateSummary(data) {
-        document.getElementById('totalGoal').innerText = '5,000';
-        document.getElementById('actualArea').innerText = data.reduce((sum, i) => sum + i.area, 0).toFixed(2);
-        document.getElementById('progressPct').innerText = '46.2%';
-        document.getElementById('farmerCount').innerText = data.length;
-    }
-</script>
-
+        fetchData();
+    </script>
 </body>
 </html>
