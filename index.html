@@ -3,276 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KBS Sugar - ระบบติดตามการตรวจแปลง 69/70</title>
+    <title>KBS Sugar - ระบบติดตามข้อมูลโครงการและการตรวจ 69/70</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-green: #2E7D32;
             --secondary-green: #4CAF50;
             --kbs-orange: #FF9800;
-            --bg-light: #F1F8E9;
-            --white: #FFFFFF;
+            --bg-light: #F4F7F6;
         }
         body { font-family: 'Sarabun', sans-serif; background-color: var(--bg-light); color: #333; }
-        .header {
+        
+        /* Header Style */
+        .kbs-header {
             background: linear-gradient(135deg, var(--primary-green) 0%, #1565C0 100%);
-            color: white; padding: 2rem 0; border-bottom: 5px solid var(--kbs-orange);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            color: white; padding: 25px 0; border-bottom: 5px solid var(--kbs-orange);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .card { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-        .card-header { background: white; border-bottom: 1px solid #eee; padding: 1.2rem; font-weight: 700; color: var(--primary-green); border-radius: 15px 15px 0 0 !important; }
-        .nav-tabs-kbs { border: none; gap: 10px; margin-bottom: 20px; }
+
+        /* Tabs Style */
+        .nav-tabs-kbs { border: none; gap: 8px; margin-bottom: 20px; }
         .nav-tabs-kbs .nav-link {
-            border: none; background: #e9ecef; color: #666; border-radius: 10px; padding: 12px 20px; font-weight: 600; transition: 0.3s;
+            border: none; background: #e9ecef; color: #666; border-radius: 12px;
+            padding: 12px 24px; font-weight: 600; transition: all 0.3s ease;
         }
-        .nav-tabs-kbs .nav-link.active { background: var(--primary-green); color: white; box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3); }
-        .stat-card { border-left: 5px solid var(--primary-green); padding: 20px; text-align: center; }
-        .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary-green); }
-        .table-container { background: white; border-radius: 15px; padding: 20px; overflow-x: auto; }
-        .badge-status { padding: 5px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: bold; }
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .nav-tabs-kbs .nav-link.active {
+            background: var(--primary-green); color: white;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+        }
+
+        /* Card & Table Style */
+        .content-card {
+            background: white; border-radius: 18px; padding: 25px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03);
+        }
+        .table thead { background-color: #f8f9fa; color: var(--primary-green); }
+        .status-badge {
+            padding: 6px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: bold;
+        }
+        
+        .loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+        }
     </style>
 </head>
 <body>
 
-<div id="loading" class="loading-overlay">
-    <div class="text-center">
-        <div class="spinner-border text-success" role="status"></div>
-        <p class="mt-2 fw-bold">กำลังโหลดข้อมูลจาก Google Sheets...</p>
-    </div>
+<div id="loader" class="loading-screen">
+    <div class="spinner-border text-success mb-3" role="status"></div>
+    <div class="fw-bold text-success">กำลังโหลดข้อมูลจากชีท Dataโครงการ และ Dataการตรวจ...</div>
 </div>
 
-<div class="header">
-    <div class="container text-center text-md-start">
-        <div class="d-md-flex align-items-center">
-            <img src="https://i.postimg.cc/wMdZPmTL/skr-nch-xt-2026-01-12-092906.png" alt="KBS Logo" style="height: 60px; background: white; padding: 5px; border-radius: 8px;" class="me-3 mb-3 mb-md-0">
-            <div>
-                <h1 class="h3 fw-bold mb-0">ระบบติดตามการตรวจแปลง ปี 69/70</h1>
-                <p class="mb-0 opacity-75">โรงงานน้ำตาลครบุรี และโรงงานน้ำตาลสีคิ้ว (Dataการตรวจ)</p>
-            </div>
+<div class="kbs-header">
+    <div class="container d-md-flex align-items-center">
+        <img src="https://i.postimg.cc/wMdZPmTL/skr-nch-xt-2026-01-12-092906.png" alt="KBS Logo" style="height: 55px; background: white; padding: 6px; border-radius: 10px;" class="me-3 mb-3 mb-md-0">
+        <div>
+            <h1 class="h4 fw-bold mb-0">ระบบติดตามโครงการปลูกอ้อย ปี 69/70</h1>
+            <p class="mb-0 opacity-75 small">ข้อมูลเฉพาะจากชีท: Dataโครงการ และ Dataการตรวจ</p>
         </div>
     </div>
 </div>
 
-<div class="container mt-n4">
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="card stat-card">
-                <div class="text-muted small">จำนวนแปลง</div>
-                <div class="stat-value" id="stat-total-plots">0</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card stat-card" style="border-left-color: #2196F3;">
-                <div class="text-muted small">พื้นที่รวม (ไร่)</div>
-                <div class="stat-value text-primary" id="stat-total-area">0</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card stat-card" style="border-left-color: #4CAF50;">
-                <div class="text-muted small">ผ่านการตรวจ</div>
-                <div class="stat-value text-success" id="stat-passed">0</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-3">
-            <div class="card stat-card" style="border-left-color: #FF9800;">
-                <div class="text-muted small">รอการตรวจ</div>
-                <div class="stat-value text-warning" id="stat-pending">0</div>
-            </div>
-        </div>
-    </div>
-
-    <ul class="nav nav-tabs nav-tabs-kbs" id="projectTabs">
+<div class="container mt-4">
+    <ul class="nav nav-tabs nav-tabs-kbs" id="tabMenu">
         <li class="nav-item">
-            <button class="nav-link active" onclick="changeProject('ปลูกอ้อยในนา ปี 69/70', this)">
-                <i class="fas fa-tractor me-2"></i>ปลูกอ้อยในนา
+            <button class="nav-link active" onclick="switchProject('ปลูกอ้อยในนา ปี 69/70', this)">
+                <i class="fas fa-tractor me-2"></i>ปลูกอ้อยในนา 69/70
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link" onclick="changeProject('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)">
-                <i class="fas fa-exchange-alt me-2"></i>เปลี่ยนพืชอื่น
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" onclick="toggleSummary()">
-                <i class="fas fa-chart-pie me-2"></i>สรุปรายงาน
+            <button class="nav-link" onclick="switchProject('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)">
+                <i class="fas fa-exchange-alt me-2"></i>เปลี่ยนพืชอื่น 69/70
             </button>
         </li>
     </ul>
 
-    <div id="data-section" class="table-container shadow-sm">
-        <div class="row mb-3">
-            <div class="col-md-6">
+    <div class="content-card">
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" id="search" class="form-control border-start-0" placeholder="ค้นหาชื่อ, โควต้า หรือเลขแปลง..." onkeyup="filterTable()">
+                    <input type="text" id="txtSearch" onkeyup="doSearch()" class="form-control border-start-0" placeholder="ค้นหา ชื่อ/โควต้า/เลขแปลง...">
                 </div>
+            </div>
+            <div class="col-md-7 text-md-end mt-3 mt-md-0">
+                <span id="dataInfo" class="text-muted small">อัปเดตล่าสุด: กำลังโหลด...</span>
             </div>
         </div>
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>เลขแปลง</th>
-                    <th>โควต้า/ชื่อชาวไร่</th>
-                    <th>เขต</th>
-                    <th>นักเกษตร</th>
-                    <th class="text-end">พื้นที่ (ไร่)</th>
-                    <th>วันที่ปลูก</th>
-                    <th class="text-center">ผลการตรวจ</th>
-                </tr>
-            </thead>
-            <tbody id="table-body"></tbody>
-        </table>
-    </div>
 
-    <div id="summary-section" style="display:none;">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card p-3">
-                    <h5 class="fw-bold"><i class="fas fa-chart-bar me-2"></i>สัดส่วนพื้นที่รายเขต</h5>
-                    <canvas id="chartArea"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card p-3">
-                    <h5 class="fw-bold"><i class="fas fa-clipboard-check me-2"></i>สถานะการตรวจแปลง</h5>
-                    <canvas id="chartStatus"></canvas>
-                </div>
-            </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>เลขแปลง</th>
+                        <th>โควต้า / ชื่อชาวไร่</th>
+                        <th>เขต</th>
+                        <th>นักเกษตร</th>
+                        <th class="text-end">พื้นที่ (ไร่)</th>
+                        <th>วันที่ปลูก</th>
+                        <th class="text-center">ผลการตรวจ</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
-    // URL CSV จาก Google Sheets ของคุณ
-    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRY22UkMfLhAswqWJLCMvhCMeZxVsFQy1gLBLnrwB6VggruF4son8LZxN-EqtFxsUOdv1xs-Yf2cKnn/pub?gid=0&output=csv';
+    // ⚠️ ระบุ Sheet ID และ GID ของแต่ละชีทให้ถูกต้อง
+    const SHEET_ID = '2PACX-1vRY22UkMfLhAswqWJLCMvhCMeZxVsFQy1gLBLnrwB6VggruF4son8LZxN-EqtFxsUOdv1xs-Yf2cKnn';
+    
+    // สำคัญ: คุณต้องกด Publish ชีททีละหน้า เพื่อหาค่า gid
+    // gid=0 คือชีทแรก ปกติจะเป็น Dataโครงการ
+    // ตัวอย่าง gid=123456789 คือ Dataการตรวจ
+    const URL_PROJECT = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=0&output=csv`;
+    const URL_AUDIT = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=ใส่_GID_Dataการตรวจ_ตรงนี้&output=csv`;
 
-    let allData = [];
-    let currentProject = 'ปลูกอ้อยในนา ปี 69/70';
-    let chart1, chart2;
+    let auditData = [];
+    let activeProject = 'ปลูกอ้อยในนา ปี 69/70';
 
     async function init() {
         try {
-            const response = await fetch(csvUrl);
-            const data = await response.text();
-            allData = parseCSV(data);
-            renderDashboard();
-            document.getElementById('loading').style.display = 'none';
-        } catch (error) {
-            console.error('Error:', error);
-            alert('ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการ Publish CSV');
+            // ดึงข้อมูลจากชีท Dataการตรวจ เป็นหลักเพื่อแสดงสถานะ
+            const response = await fetch(URL_AUDIT);
+            const csvText = await response.text();
+            
+            // แปลง CSV เป็น Object Array
+            auditData = parseCSV(csvText);
+            
+            document.getElementById('dataInfo').innerText = `✅ เชื่อมต่อชีท Dataการตรวจ สำเร็จ (${auditData.length} รายการ)`;
+            document.getElementById('loader').style.display = 'none';
+            
+            renderTable();
+        } catch (err) {
+            console.error(err);
+            document.getElementById('tableBody').innerHTML = `<tr><td colspan="7" class="text-center p-5 text-danger">⚠️ ไม่สามารถโหลดข้อมูลได้ โปรดตรวจสอบการ Publish ชีท "Dataการตรวจ" เป็น CSV</td></tr>`;
         }
     }
 
-    function parseCSV(text) {
-        const rows = text.split('\n');
-        const headers = rows[0].split(',').map(h => h.trim().replace(/"/g, ''));
-        return rows.slice(1).map(row => {
-            const values = row.split(',').map(v => v.trim().replace(/"/g, ''));
+    function parseCSV(csv) {
+        const lines = csv.split('\n');
+        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        
+        return lines.slice(1).map(line => {
+            const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
             const obj = {};
-            headers.forEach((header, i) => obj[header] = values[i]);
+            headers.forEach((h, i) => obj[h] = values[i]);
             return obj;
         });
     }
 
-    function renderDashboard() {
-        const filtered = allData.filter(item => item['สถานะโครงการ'] === currentProject);
-        const tbody = document.getElementById('table-body');
+    function switchProject(name, btn) {
+        activeProject = name;
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        btn.classList.add('active');
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
-        let totalArea = 0, passed = 0, pending = 0;
+        // กรองตามชื่อโครงการในคอลัมน์ "สถานะโครงการ"
+        const filtered = auditData.filter(row => row['สถานะโครงการ'] === activeProject);
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center p-5 text-muted">ไม่พบข้อมูลโครงการ "${activeProject}" ในชีท Dataการตรวจ</td></tr>`;
+            return;
+        }
 
         filtered.forEach(row => {
-            const area = parseFloat(row['พื้นที่']) || 0;
-            totalArea += area;
-            
-            if(row['เงื่อนไขโครงการ'] === 'ผ่าน') passed++;
-            else pending++;
-
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="fw-bold text-primary">${row['เลขแปลงintech'] || '-'}</td>
-                <td><div class="fw-bold">${row['ชื่อชาวไร่'] || '-'}</div><small class="text-muted">โควต้า: ${row['เลขโควต้า'] || '-'}</small></td>
-                <td><span class="badge bg-secondary">เขต ${row['เขต'] || '-'}</span></td>
-                <td>${row['ชื่อนักเกษตร'] || '-'}</td>
-                <td class="text-end fw-bold">${area.toFixed(2)}</td>
-                <td>${row['วันที่ปลูก'] || '-'}</td>
+                <td>
+                    <div class="fw-bold">${row['ชื่อชาวไร่'] || '-'}</div>
+                    <div class="small text-muted">โควต้า: ${row['เลขโควต้า'] || '-'}</div>
+                </td>
+                <td><span class="badge bg-light text-dark border">เขต ${row['เขต'] || '-'}</span></td>
+                <td>
+                    <div class="small fw-bold">${row['ชื่อนักเกษตร'] || '-'}</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">รหัส: ${row['รหัสนักเกษตร'] || '-'}</div>
+                </td>
+                <td class="text-end fw-bold">${parseFloat(row['พื้นที่'] || 0).toFixed(2)}</td>
+                <td class="small">${row['วันที่ปลูก'] || '-'}</td>
                 <td class="text-center">
-                    <span class="badge-status ${row['เงื่อนไขโครงการ'] === 'ผ่าน' ? 'bg-success text-white' : 'bg-warning text-dark'}">
-                        ${row['เงื่อนไขโครงการ'] || 'รอตรวจ'}
+                    <span class="status-badge ${row['เงื่อนไขโครงการ'] === 'ผ่าน' ? 'bg-success text-white' : 'bg-warning text-dark'}">
+                        ${row['เงื่อนไขโครงการ'] || 'รอการตรวจ'}
                     </span>
                 </td>
             `;
             tbody.appendChild(tr);
         });
-
-        document.getElementById('stat-total-plots').innerText = filtered.length;
-        document.getElementById('stat-total-area').innerText = totalArea.toLocaleString();
-        document.getElementById('stat-passed').innerText = passed;
-        document.getElementById('stat-pending').innerText = pending;
-        
-        updateCharts(filtered);
     }
 
-    function changeProject(project, btn) {
-        currentProject = project;
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('data-section').style.display = 'block';
-        document.getElementById('summary-section').style.display = 'none';
-        renderDashboard();
+    function doSearch() {
+        const q = document.getElementById('txtSearch').value.toLowerCase();
+        const rows = document.querySelectorAll('#tableBody tr');
+        rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none');
     }
 
-    function toggleSummary() {
-        document.getElementById('data-section').style.display = 'none';
-        document.getElementById('summary-section').style.display = 'block';
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        event.target.classList.add('active');
-    }
-
-    function filterTable() {
-        const query = document.getElementById('search').value.toLowerCase();
-        const rows = document.querySelectorAll('#table-body tr');
-        rows.forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
-        });
-    }
-
-    function updateCharts(data) {
-        // กราฟสรุปรายเขต
-        const zoneMap = {};
-        data.forEach(d => {
-            const z = 'เขต ' + d['เขต'];
-            zoneMap[z] = (zoneMap[z] || 0) + (parseFloat(d['พื้นที่']) || 0);
-        });
-
-        if(chart1) chart1.destroy();
-        chart1 = new Chart(document.getElementById('chartArea'), {
-            type: 'bar',
-            data: {
-                labels: Object.keys(zoneMap),
-                datasets: [{ label: 'พื้นที่รวม (ไร่)', data: Object.values(zoneMap), backgroundColor: '#4CAF50' }]
-            }
-        });
-
-        // กราฟวงกลมสถานะ
-        const passed = data.filter(d => d['เงื่อนไขโครงการ'] === 'ผ่าน').length;
-        const pending = data.length - passed;
-
-        if(chart2) chart2.destroy();
-        chart2 = new Chart(document.getElementById('chartStatus'), {
-            type: 'pie',
-            data: {
-                labels: ['ผ่าน', 'รอตรวจ/ไม่ผ่าน'],
-                datasets: [{ data: [passed, pending], backgroundColor: ['#2E7D32', '#FF9800'] }]
-            }
-        });
-    }
-
+    // Start
     init();
 </script>
+
 </body>
 </html>
