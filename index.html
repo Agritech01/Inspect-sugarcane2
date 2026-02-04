@@ -3,48 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบข้อมูล Data การตรวจ 69/70</title>
+    <title>ระบบติดตาม Data การตรวจ 69/70</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
-        .active-tab { background-color: #ffffff; border-top: 4px solid #10b981; color: #065f46; font-weight: 600; }
-        .table-card { background: white; border-radius: 0 1rem 1rem 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        tr:hover { background-color: #f0fdfa; transition: 0.2s; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; }
+        .tab-active { background-color: #ffffff; border-bottom: 4px solid #10b981; color: #065f46; font-weight: 600; }
+        .table-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        .status-pill { padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
-        <header class="mb-6">
-            <h1 class="text-3xl font-bold text-slate-800">📋 ระบบตรวจสอบ: ชีท Dataการตรวจ</h1>
-            <p class="text-slate-500 text-sm mt-1">แสดงข้อมูลแยกตามสถานะโครงการ ปี 69/70</p>
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-emerald-50">
+            <div>
+                <h1 class="text-2xl font-bold text-emerald-900">📑 ระบบจัดการข้อมูล: Dataการตรวจ</h1>
+                <p class="text-slate-500">ตรวจสอบข้อมูลการปลูกอ้อย ปี 69/70 รายแปลง</p>
+            </div>
+            <div id="dataCount" class="mt-4 md:mt-0 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl font-bold">
+                กำลังโหลด...
+            </div>
         </header>
 
-        <div class="flex flex-wrap gap-1">
-            <button onclick="filterProject('ปลูกอ้อยในนา ปี 69/70', this)" 
-                id="btn-default" class="px-6 py-4 rounded-t-xl bg-slate-200 text-slate-600 transition-all">
+        <div class="flex flex-wrap gap-2 border-b border-slate-200 mb-0">
+            <button onclick="switchProject('ปลูกอ้อยในนา ปี 69/70', this)" id="defaultTab" 
+                class="px-6 py-4 rounded-t-xl text-slate-500 hover:bg-white transition-all">
                 🌾 ปลูกอ้อยในนา 69/70
             </button>
-            <button onclick="filterProject('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)" 
-                class="px-6 py-4 rounded-t-xl bg-slate-200 text-slate-600 transition-all">
+            <button onclick="switchProject('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)" 
+                class="px-6 py-4 rounded-t-xl text-slate-500 hover:bg-white transition-all">
                 🔄 เปลี่ยนพืชอื่น 69/70
             </button>
         </div>
 
-        <div class="table-card p-6 border border-slate-100">
-            <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
-                <input type="text" id="searchInput" onkeyup="searchTable()" 
-                    placeholder="ค้นหา ชื่อชาวไร่ / เลขโควต้า / เลขแปลง..." 
-                    class="w-full md:w-96 p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
-                <div id="dataCount" class="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg font-bold flex items-center shadow-sm">
-                    กำลังโหลดข้อมูล...
+        <div class="bg-white p-6 rounded-b-2xl shadow-sm border border-t-0 border-slate-100">
+            
+            <div class="mb-6">
+                <div class="relative max-w-md">
+                    <input type="text" id="searchInput" onkeyup="searchTable()" 
+                        placeholder="ค้นหา ชื่อชาวไร่ / เลขโควต้า / เลขแปลง..." 
+                        class="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                    <span class="absolute left-4 top-3.5 text-slate-400">🔍</span>
                 </div>
             </div>
 
-            <div class="overflow-x-auto rounded-xl border border-slate-100">
-                <table class="w-full text-left" id="dataTable">
-                    <thead class="bg-slate-50 text-slate-600 text-sm font-semibold uppercase">
+            <div class="overflow-x-auto rounded-xl border border-slate-50">
+                <table class="w-full text-left border-collapse" id="dataTable">
+                    <thead class="bg-slate-50 text-slate-600 text-sm font-semibold">
                         <tr>
                             <th class="p-4 border-b">เลขแปลง Intech</th>
                             <th class="p-4 border-b">เลขโควต้า</th>
@@ -57,7 +63,7 @@
                             <th class="p-4 border-b text-center">จัดการ</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-700 text-sm">
+                    <tbody id="tableBody" class="text-slate-700 divide-y divide-slate-100 text-sm">
                         </tbody>
                 </table>
             </div>
@@ -65,83 +71,92 @@
     </div>
 
     <script>
+        // ใช้ ID จาก "Dataการตรวจ" ที่คุณส่งมา
         const sheetId = '2PACX-1vRY22UkMfLhAswqWJLCMvhCMeZxVsFQy1gLBLnrwB6VggruF4son8LZxN-EqtFxsUOdv1xs-Yf2cKnn';
-        // สำคัญ: ต้อง Publish ชีท "Dataการตรวจ" เป็น CSV เท่านั้น
+        // เคล็ดลับ: ต้อง Publish ชีท "Dataการตรวจ" เป็น CSV เท่านั้น
         const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?output=csv`;
 
-        let rawData = [];
+        let masterData = [];
+        let currentProjectName = '';
 
-        async function init() {
+        async function loadSheetData() {
             try {
                 const response = await fetch(url);
-                const text = await response.text();
-                // แปลง CSV เป็น Array โดยกำจัดช่องว่างส่วนเกิน
-                rawData = text.split('\n').map(row => row.split(',').map(cell => cell.trim()));
+                const csvText = await response.text();
+                // แปลง CSV เป็น Array
+                masterData = csvText.split('\n').map(row => row.split(',').map(cell => cell.trim()));
                 
-                // แสดงผลโครงการแรกเป็นค่าเริ่มต้น
-                filterProject('ปลูกอ้อยในนา ปี 69/70', document.getElementById('btn-default'));
+                // เริ่มต้นด้วยแท็บแรก
+                document.getElementById('defaultTab').click();
             } catch (err) {
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" class="p-10 text-center text-red-500 font-bold">❌ ดึงข้อมูลไม่สำเร็จ กรุณาตรวจสอบการ Publish to Web ของชีท Dataการตรวจ</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" class="p-10 text-center text-red-500 italic">❌ ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการ Publish ชีท "Dataการตรวจ" เป็น CSV</td></tr>';
             }
         }
 
-        function filterProject(projectName, btn) {
-            // สลับสถานะปุ่ม
-            document.querySelectorAll('button').forEach(b => b.className = b.className.replace('active-tab', 'bg-slate-200 text-slate-600'));
-            btn.className = btn.className.replace('bg-slate-200 text-slate-600', 'active-tab');
+        function switchProject(projectName, btn) {
+            currentProjectName = projectName;
+            
+            // สลับสถานะปุ่มเมนู
+            document.querySelectorAll('button').forEach(b => b.classList.remove('tab-active'));
+            btn.classList.add('tab-active');
 
+            renderTable();
+        }
+
+        function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            // กรองข้อมูล: สถานะโครงการ อยู่ที่คอลัมน์ที่ 9 (Index 8)
-            const filtered = rawData.slice(1).filter(row => {
-                const status = row[8] || ''; // คอลัมน์ที่ 9
-                return status.includes(projectName);
+            // กรองข้อมูลจาก คอลัมน์ที่ 9 (Index 8) "สถานะโครงการ"
+            const filtered = masterData.slice(1).filter(row => {
+                const statusValue = row[8] || ''; 
+                return statusValue === currentProjectName;
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="p-20 text-center text-slate-400">--- ไม่พบข้อมูลสำหรับโครงการนี้ ---</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="9" class="p-20 text-center text-slate-300 italic">ไม่พบข้อมูลในโครงการ: ${currentProjectName}</td></tr>`;
                 document.getElementById('dataCount').innerText = `พบ 0 รายการ`;
                 return;
             }
 
             filtered.forEach(row => {
                 const tr = document.createElement('tr');
+                tr.className = "hover:bg-emerald-50/30 transition-colors";
                 tr.innerHTML = `
                     <td class="p-4 font-medium text-slate-900">${row[0] || '-'}</td>
                     <td class="p-4">${row[1] || '-'}</td>
-                    <td class="p-4 font-semibold text-emerald-700">${row[2] || '-'}</td>
+                    <td class="p-4 font-bold text-emerald-800">${row[2] || '-'}</td>
                     <td class="p-4 text-center">${row[3] || '-'}</td>
                     <td class="p-4">
-                        <div class="text-[11px] text-slate-400">ID: ${row[4] || '-'}</div>
-                        <div class="font-medium text-slate-600">${row[5] || '-'}</div>
+                        <div class="text-[10px] text-slate-400 font-bold">${row[4] || '-'}</div>
+                        <div class="font-medium">${row[5] || '-'}</div>
                     </td>
-                    <td class="p-4 text-center font-bold text-slate-800">${row[6] || '0'}</td>
+                    <td class="p-4 text-center font-bold text-slate-700">${row[6] || '0'}</td>
                     <td class="p-4 text-slate-500">${row[7] || '-'}</td>
                     <td class="p-4">
-                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold">
+                        <span class="status-pill ${currentProjectName.includes('ปลูกอ้อยในนา') ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}">
                             ${row[8] || '-'}
                         </span>
                     </td>
                     <td class="p-4 text-center">
-                        <button class="px-4 py-1 rounded-lg border border-emerald-500 text-emerald-600 text-xs font-bold hover:bg-emerald-500 hover:text-white transition">ตรวจงาน</button>
+                        <button class="bg-white border border-emerald-500 text-emerald-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-emerald-500 hover:text-white transition">🔍 ตรวจสอบ</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('dataCount').innerText = `📊 ทั้งหมด ${filtered.length} รายการ`;
+            document.getElementById('dataCount').innerText = `✅ พบทั้งหมด ${filtered.length} รายการ`;
         }
 
         function searchTable() {
-            const input = document.getElementById("searchInput").value.toLowerCase();
-            const rows = document.querySelectorAll("#tableBody tr");
-            rows.forEach(r => {
-                r.style.display = r.innerText.toLowerCase().includes(input) ? "" : "none";
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const trs = document.querySelectorAll('#tableBody tr');
+            trs.forEach(r => {
+                r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none';
             });
         }
 
-        init();
+        loadSheetData();
     </script>
 </body>
 </html>
