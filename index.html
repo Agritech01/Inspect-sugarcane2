@@ -3,48 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KBS Sugar - Dataการตรวจ</title>
+    <title>KBS Sugar - ระบบติดตาม Dataการตรวจ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root { --kbs-green: #2E7D32; --kbs-orange: #FF9800; }
         body { font-family: 'Sarabun', sans-serif; background-color: #f4f7f6; }
-        .kbs-header { background: #2E7D32; color: white; padding: 20px; border-bottom: 4px solid #FF9800; }
-        .nav-link.active { background-color: #2E7D32 !important; color: white !important; }
-        .table-container { background: white; border-radius: 10px; padding: 20px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .kbs-header { background: linear-gradient(135deg, var(--kbs-green) 0%, #1565C0 100%); color: white; padding: 20px 0; border-bottom: 5px solid var(--kbs-orange); }
+        .content-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .nav-pills .nav-link.active { background-color: var(--kbs-green); }
+        .table thead { background-color: #f8f9fa; color: var(--kbs-green); }
     </style>
 </head>
 <body>
 
-<div class="kbs-header text-center">
-    <h3>ระบบติดตามโครงการปลูกอ้อย 69/70</h3>
-    <small>ข้อมูลจากชีท: Dataการตรวจ</small>
+<div class="kbs-header mb-4">
+    <div class="container d-flex align-items-center">
+        <img src="https://i.postimg.cc/wMdZPmTL/skr-nch-xt-2026-01-12-092906.png" height="50" class="bg-white p-1 rounded me-3">
+        <h1 class="h4 mb-0 fw-bold">ระบบติดตามโครงการปลูกอ้อย ปี 69/70 (Dataการตรวจ)</h1>
+    </div>
 </div>
 
-<div class="container mt-4">
-    <ul class="nav nav-pills mb-3 shadow-sm p-2 bg-white rounded" id="pills-tab" role="tablist">
+<div class="container">
+    <ul class="nav nav-pills mb-3 shadow-sm p-2 bg-white rounded">
         <li class="nav-item">
-            <button class="nav-link active" onclick="changeTab('ปลูกอ้อยในนา ปี 69/70', this)">ปลูกอ้อยในนา</button>
+            <button class="nav-link active" onclick="changeTab('ปลูกอ้อยในนา ปี 69/70', this)">🌾 ปลูกอ้อยในนา</button>
         </li>
         <li class="nav-item">
-            <button class="nav-link" onclick="changeTab('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)">เปลี่ยนพืชอื่น</button>
+            <button class="nav-link" onclick="changeTab('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)">🔄 เปลี่ยนพืชอื่น</button>
         </li>
     </ul>
 
-    <div class="table-container">
+    <div class="content-card">
         <div id="loader" class="text-center p-5">
-            <div class="spinner-border text-success"></div>
-            <p>กำลังโหลดข้อมูล...</p>
+            <div class="spinner-border text-success mb-2"></div>
+            <p>กำลังเชื่อมต่อ Google Sheets...</p>
         </div>
-        
+
         <div class="table-responsive">
-            <table class="table table-hover border">
-                <thead class="table-light">
+            <table class="table table-hover align-middle border">
+                <thead>
                     <tr>
                         <th>เลขแปลง</th>
                         <th>ชื่อชาวไร่ (โควต้า)</th>
                         <th>เขต</th>
                         <th>นักเกษตร</th>
-                        <th class="text-end">พื้นที่</th>
+                        <th class="text-end">พื้นที่ (ไร่)</th>
                         <th class="text-center">ผลการตรวจ</th>
                     </tr>
                 </thead>
@@ -55,32 +60,27 @@
 </div>
 
 <script>
-    // ดึงจากชีท Dataการตรวจ โดยตรง
+    // ตั้งค่าตัวแปรจากข้อมูลที่คุณแจ้ง
     const SHEET_ID = '2PACX-1vRY22UkMfLhAswqWJLCMvhCMeZxVsFQy1gLBLnrwB6VggruF4son8LZxN-EqtFxsUOdv1xs-Yf2cKnn';
     const GID = '1732816752'; 
     const CSV_URL = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${GID}&output=csv`;
 
     let rawData = [];
-    let activeProject = 'ปลูกอ้อยในนา ปี 69/70';
+    let currentTab = 'ปลูกอ้อยในนา ปี 69/70';
 
-    async function loadData() {
+    async function init() {
         try {
-            const res = await fetch(CSV_URL);
-            const text = await res.text();
+            const response = await fetch(CSV_URL);
+            const text = await response.text();
             
-            // แยกบรรทัดและล้างค่าว่าง
+            // แยกข้อมูลเป็นบรรทัด และแยกคอลัมน์ด้วยเครื่องหมายคอมมา
             const lines = text.split('\n').filter(l => l.trim() !== "");
-            
-            // เก็บเป็นข้อมูลดิบ (Array ของ Array) เพื่อลดความซับซ้อน
-            rawData = lines.map(line => {
-                // ใช้ Regex แยก CSV เพื่อป้องกันปัญหาเครื่องหมายคอมมาในชื่อ
-                return line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/"/g, ''));
-            });
+            rawData = lines.map(line => line.split(',').map(v => v.trim().replace(/"/g, '')));
 
             document.getElementById('loader').classList.add('d-none');
             render();
         } catch (err) {
-            document.getElementById('tableBody').innerHTML = `<tr><td colspan="6" class="text-center text-danger">เกิดข้อผิดพลาดในการดึงข้อมูล</td></tr>`;
+            document.getElementById('tableBody').innerHTML = `<tr><td colspan="6" class="text-center text-danger">ไม่สามารถเชื่อมต่อข้อมูลได้</td></tr>`;
         }
     }
 
@@ -88,38 +88,38 @@
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
         
-        const headers = rawData[0]; // แถวที่ 0 คือหัวตาราง
+        const headers = rawData[0]; // แถวแรกคือหัวตาราง
         
-        // --- ใช้วิธีหาลำดับคอลัมน์เหมือนโค้ดเก่าคุณ ---
-        const findCol = (name) => headers.findIndex(h => h.includes(name));
+        // --- ส่วนที่ดึงมาจากโค้ดเก่าคุณ: หา Index ของคอลัมน์อัตโนมัติ ---
+        const getIdx = (name) => headers.findIndex(h => h.includes(name));
         
-        const idxIntech = findCol("เลขแปลงintech");
-        const idxQuota = findCol("เลขโควต้า");
-        const idxFarmer = findCol("ชื่อชาวไร่");
-        const idxZone = findCol("เขต");
-        const idxStaff = findCol("ชื่อนักเกษตร");
-        const idxArea = findCol("พื้นที่");
-        const idxStatus = findCol("สถานะโครงการ"); // คอลัมน์ที่ใช้กรอง
-        const idxAudit = findCol("เงื่อนไขโครงการ"); // คอลัมน์ผลการตรวจ
+        const iIntech = getIdx("เลขแปลงintech");
+        const iQuota = getIdx("เลขโควต้า");
+        const iFarmer = getIdx("ชื่อชาวไร่");
+        const iZone = getIdx("เขต");
+        const iStaff = getIdx("ชื่อนักเกษตร");
+        const iArea = getIdx("พื้นที่");
+        const iStatus = getIdx("สถานะโครงการ"); // คอลัมน์สำคัญที่ใช้แยกแท็บ
+        const iAudit = getIdx("เงื่อนไขโครงการ");
 
-        // เริ่มวนลูปจากแถวที่ 1 (ข้ามหัวตาราง)
+        // วนลูปเริ่มที่แถวที่ 1 (ข้ามหัวตาราง)
         const rows = rawData.slice(1);
-        let foundCount = 0;
+        let count = 0;
 
         rows.forEach(row => {
-            // กรอง: ถ้าคอลัมน์ "สถานะโครงการ" ตรงกับแท็บที่เลือก
-            if (row[idxStatus] === activeProject) {
-                foundCount++;
+            // กรองข้อมูล: ถ้าค่าในคอลัมน์ 'สถานะโครงการ' ตรงกับแท็บที่เลือก
+            if (row[iStatus] === currentProject) {
+                count++;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="fw-bold text-primary">${row[idxIntech] || '-'}</td>
-                    <td>${row[idxFarmer] || '-'} <br><small class="text-muted">${row[idxQuota] || '-'}</small></td>
-                    <td>${row[idxZone] || '-'}</td>
-                    <td>${row[idxStaff] || '-'}</td>
-                    <td class="text-end">${row[idxArea] || '0'}</td>
+                    <td class="fw-bold text-primary">${row[iIntech] || '-'}</td>
+                    <td><b>${row[iFarmer] || '-'}</b><br><small class="text-muted">${row[iQuota] || '-'}</small></td>
+                    <td class="text-center">${row[iZone] || '-'}</td>
+                    <td>${row[iStaff] || '-'}</td>
+                    <td class="text-end fw-bold">${parseFloat(row[iArea] || 0).toFixed(2)}</td>
                     <td class="text-center">
-                        <span class="badge ${row[idxAudit] === 'ผ่าน' ? 'bg-success' : 'bg-warning text-dark'}">
-                            ${row[idxAudit] || 'รอตรวจ'}
+                        <span class="badge ${row[iAudit] === 'ผ่าน' ? 'bg-success' : 'bg-warning text-dark'}">
+                            ${row[iAudit] || 'รอตรวจ'}
                         </span>
                     </td>
                 `;
@@ -127,20 +127,19 @@
             }
         });
 
-        if (foundCount === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-5 text-muted">ไม่พบข้อมูล "${activeProject}"</td></tr>`;
+        if (count === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-5 text-muted">ไม่พบข้อมูลในเงื่อนไข "${currentProject}"</td></tr>`;
         }
     }
 
     function changeTab(name, btn) {
-        activeProject = name;
+        currentProject = name;
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         btn.classList.add('active');
         render();
     }
 
-    loadData();
+    init();
 </script>
-
 </body>
 </html>
