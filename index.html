@@ -4,49 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบติดตามข้อมูลการตรวจโครงการ 69/70</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tahoma', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; }
-        .nav-tabs { display: flex; justify-content: center; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
-        .tab { padding: 10px 20px; cursor: pointer; border: none; background: none; font-size: 16px; font-weight: bold; }
-        .tab.active { color: #27ae60; border-bottom: 3px solid #27ae60; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #27ae60; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .loading { text-align: center; padding: 20px; font-style: italic; color: #666; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8f9fa; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1300px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h1 { color: #1b5e20; text-align: center; margin-bottom: 30px; }
+        .nav-tabs { display: flex; justify-content: center; margin-bottom: 25px; gap: 10px; border-bottom: 2px solid #e0e0e0; }
+        .tab { padding: 12px 25px; cursor: pointer; border: none; background: none; font-size: 16px; font-weight: bold; color: #757575; transition: 0.3s; }
+        .tab.active { color: #2e7d32; border-bottom: 4px solid #2e7d32; }
+        .tab:hover { background-color: #f1f8e9; }
+        
+        .table-responsive { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        th { background-color: #2e7d32; color: white; padding: 15px; text-align: center; font-weight: 400; font-size: 14px; white-space: nowrap; }
+        td { border-bottom: 1px solid #eee; padding: 12px; text-align: center; font-size: 14px; }
+        tr:hover { background-color: #f5f5f5; }
+        
+        .loading { text-align: center; padding: 50px; font-size: 18px; color: #2e7d32; }
+        .empty-msg { text-align: center; padding: 40px; color: #999; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>ข้อมูลการตรวจโครงการ ปี 69/70</h1>
+    <h1>📊 ข้อมูลการตรวจโครงการ ปี 69/70</h1>
     
     <div class="nav-tabs">
         <button class="tab active" onclick="switchPage('ปลูกอ้อยในนา')">ปลูกอ้อยในนา ปี 69/70</button>
         <button class="tab" onclick="switchPage('เปลี่ยนพืชอื่นมาปลูกอ้อย')">เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70</button>
     </div>
 
-    <div id="content">
-        <div class="loading">กำลังโหลดข้อมูล...</div>
+    <div class="table-responsive">
+        <div id="loading" class="loading">กำลังโหลดข้อมูลจาก Google Sheets...</div>
         <table id="dataTable" style="display:none;">
             <thead>
-                <tr id="tableHeader"></tr>
+                <tr id="tableHeader">
+                    </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="tableBody">
+                </tbody>
         </table>
+        <div id="emptyMsg" class="empty-msg" style="display:none;">ไม่พบข้อมูลในหมวดหมู่นี้</div>
     </div>
 </div>
 
 <script>
-    // URL สำหรับดึงข้อมูล (แปลงจาก pubhtml เป็น export?format=csv)
     const sheetID = "2PACX-1vRY22UkMfLhAswqWJLCMvhCMeZxVsFQy1gLBLnrwB6VggruF4son8LZxN-EqtFxsUOdv1xs-Yf2cKnn";
-    const gidProject = "742878785"; // Dataโครงการ
-    const gidCheck = "1732816752";   // Dataการตรวจ
-    
-    // แปลงลิงก์เพื่อให้ดึงข้อมูลดิบได้ง่ายขึ้น
+    const gidCheck = "1732816752"; // Dataการตรวจ
     const csvUrl = `https://docs.google.com/spreadsheets/d/e/${sheetID}/pub?gid=${gidCheck}&output=csv`;
+
+    // ลำดับคอลัมน์ที่ต้องการดึงมาแสดง (ต้องสะกดให้ตรงกับใน Google Sheet)
+    const columnsToDisplay = [
+        "เลขแปลงintech", 
+        "เลขโควต้า", 
+        "ชื่อชาวไร่", 
+        "เขต", 
+        "รหัสนักเกษตร", 
+        "ชื่อนักเกษตร", 
+        "พื้นที่", 
+        "วันที่ปลูก", 
+        "เงื่อนไขโครงการ", 
+        "จัดการ"
+    ];
 
     let allData = [];
 
@@ -55,18 +74,22 @@
             const response = await fetch(csvUrl);
             const data = await response.text();
             allData = parseCSV(data);
-            switchPage('ปลูกอ้อยในนา'); // โหลดหน้าแรกหลังจากดึงข้อมูลเสร็จ
+            switchPage('ปลูกอ้อยในนา');
         } catch (error) {
-            document.getElementById('content').innerHTML = "เกิดข้อผิดพลาดในการดึงข้อมูล";
+            document.getElementById('loading').innerHTML = "❌ ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการ Publish Google Sheet";
             console.error(error);
         }
     }
 
     function parseCSV(csvText) {
         const lines = csvText.split("\n");
-        const headers = lines[0].split(",").map(h => h.trim());
+        if (lines.length === 0) return [];
+        
+        // ล้างค่าว่างและตัวอักษรพิเศษจากการตัดบรรทัด
+        const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ''));
+        
         return lines.slice(1).map(line => {
-            const values = line.split(",").map(v => v.trim());
+            const values = line.split(",").map(v => v.trim().replace(/^"|"$/g, ''));
             return headers.reduce((obj, header, i) => {
                 obj[header] = values[i];
                 return obj;
@@ -75,7 +98,7 @@
     }
 
     function switchPage(statusFilter) {
-        // จัดการ UI Tabs
+        // อัปเดตสถานะ Tab
         document.querySelectorAll('.tab').forEach(btn => {
             btn.classList.toggle('active', btn.innerText.includes(statusFilter));
         });
@@ -83,43 +106,44 @@
         const tableBody = document.getElementById('tableBody');
         const tableHeader = document.getElementById('tableHeader');
         const table = document.getElementById('dataTable');
+        const loading = document.getElementById('loading');
+        const emptyMsg = document.getElementById('emptyMsg');
         
         tableBody.innerHTML = "";
         tableHeader.innerHTML = "";
 
-        // กรองข้อมูลตาม "สถานะโครงการ" (คอลัมน์ที่คุณระบุ)
+        // กรองข้อมูลตามสถานะโครงการ
         const filteredData = allData.filter(row => row['สถานะโครงการ'] === statusFilter);
 
         if (filteredData.length > 0) {
-            // สร้างหัวตาราง
-            const headers = Object.keys(filteredData[0]);
-            headers.forEach(h => {
+            // 1. สร้างหัวตารางตามลำดับที่ระบุ
+            columnsToDisplay.forEach(colName => {
                 const th = document.createElement('th');
-                th.innerText = h;
+                th.innerText = colName;
                 tableHeader.appendChild(th);
             });
 
-            // ใส่ข้อมูลในตาราง
+            // 2. สร้างแถวข้อมูล
             filteredData.forEach(row => {
                 const tr = document.createElement('tr');
-                headers.forEach(h => {
+                columnsToDisplay.forEach(colName => {
                     const td = document.createElement('td');
-                    td.innerText = row[h] || "-";
+                    td.innerText = row[colName] || "-"; // ถ้าไม่มีข้อมูลให้ใส่ -
                     tr.appendChild(td);
                 });
                 tableBody.appendChild(tr);
             });
 
             table.style.display = "table";
-            document.querySelector('.loading').style.display = "none";
+            loading.style.display = "none";
+            emptyMsg.style.display = "none";
         } else {
             table.style.display = "none";
-            document.querySelector('.loading').innerText = "ไม่พบข้อมูลในหมวดหมู่นี้";
-            document.querySelector('.loading').style.display = "block";
+            loading.style.display = "none";
+            emptyMsg.style.display = "block";
         }
     }
 
-    // เริ่มทำงาน
     fetchData();
 </script>
 
