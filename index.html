@@ -3,65 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบตรวจติดตามโครงการ 69/70</title>
+    <title>ระบบข้อมูล Data การตรวจ 69/70</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f0fdf4; }
-        .tab-active { background-color: white; border-top: 4px solid #16a34a; color: #16a34a; font-weight: 600; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05); }
-        .table-container { background: white; border-radius: 0 1rem 1rem 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .search-focus:focus { ring: 2px; ring-color: #22c55e; border-color: #22c55e; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
+        .active-tab { background-color: #ffffff; border-top: 4px solid #10b981; color: #065f46; font-weight: 600; }
+        .table-card { background: white; border-radius: 0 1rem 1rem 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        tr:hover { background-color: #f0fdfa; transition: 0.2s; }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body class="p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
-        <header class="mb-10">
-            <h1 class="text-3xl font-bold text-green-900">📑 ระบบบันทึกข้อมูล: Dataการตรวจ</h1>
-            <p class="text-green-700 mt-1">ตรวจสอบรายชื่อแยกตามประเภทการปลูก (ปี 69/70)</p>
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-slate-800">📋 ระบบตรวจสอบ: ชีท Dataการตรวจ</h1>
+            <p class="text-slate-500 text-sm mt-1">แสดงข้อมูลแยกตามสถานะโครงการ ปี 69/70</p>
         </header>
 
         <div class="flex flex-wrap gap-1">
-            <button onclick="changeTab('ปลูกอ้อยในนา ปี 69/70', this)" 
-                class="tab-btn px-6 py-4 rounded-t-xl bg-green-100 text-green-800 transition-all hover:bg-green-200">
+            <button onclick="filterProject('ปลูกอ้อยในนา ปี 69/70', this)" 
+                id="btn-default" class="px-6 py-4 rounded-t-xl bg-slate-200 text-slate-600 transition-all">
                 🌾 ปลูกอ้อยในนา 69/70
             </button>
-            <button onclick="changeTab('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)" 
-                class="tab-btn px-6 py-4 rounded-t-xl bg-green-100 text-green-800 transition-all hover:bg-green-200">
+            <button onclick="filterProject('เปลี่ยนพืชอื่นมาปลูกอ้อย ปี 69/70', this)" 
+                class="px-6 py-4 rounded-t-xl bg-slate-200 text-slate-600 transition-all">
                 🔄 เปลี่ยนพืชอื่น 69/70
             </button>
         </div>
 
-        <div class="table-container p-6 border-t-0 border border-green-50">
-            
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <div class="relative w-full md:w-96">
-                    <input type="text" id="searchBox" onkeyup="doSearch()" 
-                        placeholder="ค้นหาชื่อ, เลขแปลง หรือโควต้า..." 
-                        class="w-full p-3 pl-10 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm transition-all">
-                    <span class="absolute left-3 top-3.5">🔍</span>
-                </div>
-                <div id="summaryCount" class="bg-green-600 text-white px-6 py-2 rounded-full text-sm font-semibold shadow-md">
-                    กำลังประมวลผล...
+        <div class="table-card p-6 border border-slate-100">
+            <div class="flex flex-col md:flex-row justify-between mb-6 gap-4">
+                <input type="text" id="searchInput" onkeyup="searchTable()" 
+                    placeholder="ค้นหา ชื่อชาวไร่ / เลขโควต้า / เลขแปลง..." 
+                    class="w-full md:w-96 p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none">
+                <div id="dataCount" class="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg font-bold flex items-center shadow-sm">
+                    กำลังโหลดข้อมูล...
                 </div>
             </div>
 
-            <div class="overflow-x-auto rounded-lg border border-gray-100">
-                <table class="w-full text-left border-collapse" id="mainTable">
-                    <thead class="bg-green-50 text-green-900 text-sm">
+            <div class="overflow-x-auto rounded-xl border border-slate-100">
+                <table class="w-full text-left" id="dataTable">
+                    <thead class="bg-slate-50 text-slate-600 text-sm font-semibold uppercase">
                         <tr>
                             <th class="p-4 border-b">เลขแปลง Intech</th>
                             <th class="p-4 border-b">เลขโควต้า</th>
                             <th class="p-4 border-b">ชื่อชาวไร่</th>
                             <th class="p-4 border-b">เขต</th>
-                            <th class="p-4 border-b">รหัส/ชื่อนักเกษตร</th>
+                            <th class="p-4 border-b">นักเกษตร (รหัส/ชื่อ)</th>
                             <th class="p-4 border-b text-center">พื้นที่ (ไร่)</th>
                             <th class="p-4 border-b">วันที่ปลูก</th>
-                            <th class="p-4 border-b">เงื่อนไขโครงการ</th>
+                            <th class="p-4 border-b">สถานะโครงการ</th>
                             <th class="p-4 border-b text-center">จัดการ</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody" class="divide-y divide-gray-50 text-gray-700 text-sm">
+                    <tbody id="tableBody" class="divide-y divide-slate-100 text-slate-700 text-sm">
                         </tbody>
                 </table>
             </div>
@@ -69,94 +65,83 @@
     </div>
 
     <script>
-        // ใช้ ID เดิม และระบุชื่อชีทใน URL (gid คือค่าประจำชีท Dataการตรวจ)
         const sheetId = '2PACX-1vRY22UkMfLhAswqWJLCMvhCMeZxVsFQy1gLBLnrwB6VggruF4son8LZxN-EqtFxsUOdv1xs-Yf2cKnn';
-        // เคล็ดลับ: คุณต้องระบุ gid ของชีท "Dataการตรวจ" ลงใน URL นี้เพื่อให้ดึงถูกหน้า
-        // หากไม่ทราบ gid ให้ลองใช้ URL มาตรฐานที่ Publish ทุกหน้า
-        const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?gid=123456789&output=csv`; 
-        // หมายเหตุ: แทนที่ 123456789 ด้วย gid ของชีท Dataการตรวจ (ดูได้ที่ URL ของ Google Sheets ตัวจริงท้ายลิงก์จะมี gid=...)
+        // สำคัญ: ต้อง Publish ชีท "Dataการตรวจ" เป็น CSV เท่านั้น
+        const url = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?output=csv`;
 
-        let allRows = [];
-        let activeProject = 'ปลูกอ้อยในนา ปี 69/70';
+        let rawData = [];
 
-        async function loadData() {
+        async function init() {
             try {
-                // หากคุณไม่ได้ใส่ gid โค้ดจะดึงหน้าแรกของไฟล์มาให้
-                const fetchUrl = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?output=csv`;
-                const response = await fetch(fetchUrl);
+                const response = await fetch(url);
                 const text = await response.text();
+                // แปลง CSV เป็น Array โดยกำจัดช่องว่างส่วนเกิน
+                rawData = text.split('\n').map(row => row.split(',').map(cell => cell.trim()));
                 
-                // แปลงข้อมูล CSV และลบช่องว่างส่วนเกิน
-                allRows = text.split('\n').map(r => r.split(',').map(c => c.trim()));
-                
-                // เลือกแท็บแรกให้ทำงาน
-                const firstBtn = document.querySelectorAll('.tab-btn')[0];
-                changeTab(activeProject, firstBtn);
+                // แสดงผลโครงการแรกเป็นค่าเริ่มต้น
+                filterProject('ปลูกอ้อยในนา ปี 69/70', document.getElementById('btn-default'));
             } catch (err) {
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" class="p-10 text-center text-red-500">❌ ดึงข้อมูลไม่สำเร็จ กรุณาตรวจสอบการ Publish to Web</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" class="p-10 text-center text-red-500 font-bold">❌ ดึงข้อมูลไม่สำเร็จ กรุณาตรวจสอบการ Publish to Web ของชีท Dataการตรวจ</td></tr>';
             }
         }
 
-        function changeTab(projName, btn) {
-            activeProject = projName;
-            
-            // ปรับแต่ง UI ปุ่ม
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-            btn.classList.add('tab-active');
+        function filterProject(projectName, btn) {
+            // สลับสถานะปุ่ม
+            document.querySelectorAll('button').forEach(b => b.className = b.className.replace('active-tab', 'bg-slate-200 text-slate-600'));
+            btn.className = btn.className.replace('bg-slate-200 text-slate-600', 'active-tab');
 
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            // กรองข้อมูล: เงื่อนไขโครงการ (คอลัมน์ที่ 9 / Index 8)
-            const filtered = allRows.slice(1).filter(row => {
-                const status = row[8] || '';
-                return status.includes(projName);
+            // กรองข้อมูล: สถานะโครงการ อยู่ที่คอลัมน์ที่ 9 (Index 8)
+            const filtered = rawData.slice(1).filter(row => {
+                const status = row[8] || ''; // คอลัมน์ที่ 9
+                return status.includes(projectName);
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-20 text-center text-gray-400 italic">ไม่พบข้อมูล "${projName}" ในชีท Dataการตรวจ</td></tr>`;
-                document.getElementById('summaryCount').innerText = `พบ 0 รายการ`;
+                tbody.innerHTML = '<tr><td colspan="9" class="p-20 text-center text-slate-400">--- ไม่พบข้อมูลสำหรับโครงการนี้ ---</td></tr>';
+                document.getElementById('dataCount').innerText = `พบ 0 รายการ`;
                 return;
             }
 
             filtered.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-green-50/50 transition-all';
                 tr.innerHTML = `
-                    <td class="p-4 font-medium text-gray-900">${row[0] || '-'}</td>
+                    <td class="p-4 font-medium text-slate-900">${row[0] || '-'}</td>
                     <td class="p-4">${row[1] || '-'}</td>
-                    <td class="p-4 font-bold text-green-700">${row[2] || '-'}</td>
+                    <td class="p-4 font-semibold text-emerald-700">${row[2] || '-'}</td>
                     <td class="p-4 text-center">${row[3] || '-'}</td>
                     <td class="p-4">
-                        <span class="text-[10px] bg-gray-100 px-1 rounded text-gray-500">${row[4] || '-'}</span>
-                        <div class="font-medium text-gray-700">${row[5] || '-'}</div>
+                        <div class="text-[11px] text-slate-400">ID: ${row[4] || '-'}</div>
+                        <div class="font-medium text-slate-600">${row[5] || '-'}</div>
                     </td>
-                    <td class="p-4 text-center font-bold text-blue-600">${row[6] || '0'}</td>
-                    <td class="p-4 text-gray-500">${row[7] || '-'}</td>
+                    <td class="p-4 text-center font-bold text-slate-800">${row[6] || '0'}</td>
+                    <td class="p-4 text-slate-500">${row[7] || '-'}</td>
                     <td class="p-4">
-                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold underline decoration-green-300">
+                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold">
                             ${row[8] || '-'}
                         </span>
                     </td>
                     <td class="p-4 text-center">
-                        <button class="bg-white border border-green-500 text-green-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-500 hover:text-white transition">🔍 ตรวจงาน</button>
+                        <button class="px-4 py-1 rounded-lg border border-emerald-500 text-emerald-600 text-xs font-bold hover:bg-emerald-500 hover:text-white transition">ตรวจงาน</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('summaryCount').innerText = `📊 รวมทั้งหมด ${filtered.length} รายการ`;
+            document.getElementById('dataCount').innerText = `📊 ทั้งหมด ${filtered.length} รายการ`;
         }
 
-        function doSearch() {
-            const query = document.getElementById('searchBox').value.toLowerCase();
-            const trs = document.querySelectorAll('#tableBody tr');
-            trs.forEach(r => {
-                r.style.display = r.innerText.toLowerCase().includes(query) ? '' : 'none';
+        function searchTable() {
+            const input = document.getElementById("searchInput").value.toLowerCase();
+            const rows = document.querySelectorAll("#tableBody tr");
+            rows.forEach(r => {
+                r.style.display = r.innerText.toLowerCase().includes(input) ? "" : "none";
             });
         }
 
-        loadData();
+        init();
     </script>
 </body>
 </html>
